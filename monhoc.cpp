@@ -1,6 +1,5 @@
 #include "monhoc.h"
 #include "ExamValidation.h"
-
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -9,8 +8,13 @@ namespace {
 
 // Khong nhan chuoi rong, chi co khoang trang, hoac ky tu tach file.
 bool hopLeChuoi(const std::string& s) {
-    return s.find_first_not_of(" \t\r\n") != std::string::npos &&
-           s.find_first_of("|\r\n") == std::string::npos;
+    bool coNoiDung = false;
+    for (std::size_t i = 0; i < s.size(); i++) {
+        char c = s[i];
+        if (c == '|' || c == '\r' || c == '\n') return false;
+        if (c != ' ' && c != '\t') coNoiDung = true;
+    }
+    return coNoiDung;
 }
 
 bool hopLeCauHoi(const std::string& noiDung,
@@ -30,104 +34,100 @@ void xoaDanhSachCauHoi(CauHoi*& head) {
     }
 }
 
-void inMonHocInorder(MonHoc* root, int& stt) {
-    if (!root) return;
-    inMonHocInorder(root->left, stt);
-    std::cout << std::left
-              << std::setw(5) << stt++
-              << std::setw(18) << root->maMH
-              << std::setw(35) << root->tenMH
-              << std::setw(10) << demCauHoi(root) << '\n';
-    inMonHocInorder(root->right, stt);
-}
-
 } // namespace
 
-MonHoc* timMonHoc(MonHoc* root, const std::string& maMH) {
-    while (root) {
-        if (maMH == root->maMH) return root;
-        root = (maMH < root->maMH) ? root->left : root->right;
+MonHoc* timMonHoc(MonHoc* dsMon, const std::string& maMH) {
+    MonHoc* p = dsMon;
+    while (p != nullptr) {
+        if (p->maMH == maMH) return p;
+        p = p->next;
     }
     return nullptr;
 }
 
-bool themMonHoc(MonHoc*& root, const std::string& maMH, const std::string& tenMH) {
+bool themMonHoc(MonHoc*& dsMon, const std::string& maMH,
+                const std::string& tenMH) {
     if (!hopLeChuoi(maMH) || maMH.size() > 15 || !hopLeChuoi(tenMH)) {
         return false;
     }
-    if (!root) {
-        root = new MonHoc;
-        root->maMH = maMH;
-        root->tenMH = tenMH;
-        return true;
+
+    // Chen theo ma tang dan de giu thu tu hien thi nhu ban truoc.
+    MonHoc* truoc = nullptr;
+    MonHoc* p = dsMon;
+    while (p != nullptr && p->maMH < maMH) {
+        truoc = p;
+        p = p->next;
     }
-    if (maMH == root->maMH) return false;
-    if (maMH < root->maMH) return themMonHoc(root->left, maMH, tenMH);
-    return themMonHoc(root->right, maMH, tenMH);
+    if (p != nullptr && p->maMH == maMH) return false;
+
+    MonHoc* moi = new MonHoc;
+    moi->maMH = maMH;
+    moi->tenMH = tenMH;
+    moi->dsCHT = nullptr;
+    moi->next = p;
+
+    if (truoc == nullptr) dsMon = moi;
+    else truoc->next = moi;
+    return true;
 }
 
-bool suaMonHoc(MonHoc* root, const std::string& maMH, const std::string& tenMoi) {
+bool suaMonHoc(MonHoc* dsMon, const std::string& maMH,
+               const std::string& tenMoi) {
     if (!hopLeChuoi(tenMoi)) return false;
-    MonHoc* mh = timMonHoc(root, maMH);
-    if (!mh) return false;
-    mh->tenMH = tenMoi;
+    MonHoc* p = timMonHoc(dsMon, maMH);
+    if (p == nullptr) return false;
+    p->tenMH = tenMoi;
     return true;
 }
 
-bool xoaMonHoc(MonHoc*& root, const std::string& maMH) {
-    if (!root) return false;
-
-    if (maMH < root->maMH) return xoaMonHoc(root->left, maMH);
-    if (maMH > root->maMH) return xoaMonHoc(root->right, maMH);
-
-    // Tim thay node can xoa.
-    if (!root->left || !root->right) {
-        MonHoc* old = root;
-        root = root->left ? root->left : root->right;
-        xoaDanhSachCauHoi(old->dsCHT);
-        delete old;
-        return true;
+bool xoaMonHoc(MonHoc*& dsMon, const std::string& maMH) {
+    MonHoc* truoc = nullptr;
+    MonHoc* p = dsMon;
+    while (p != nullptr && p->maMH != maMH) {
+        truoc = p;
+        p = p->next;
     }
+    if (p == nullptr) return false;
 
-    // Co 2 con: lay node nho nhat cua cay con phai.
-    MonHoc** ppSucc = &root->right;
-    while ((*ppSucc)->left) ppSucc = &(*ppSucc)->left;
-    MonHoc* succ = *ppSucc;
+    if (truoc == nullptr) dsMon = p->next;
+    else truoc->next = p->next;
 
-    // Cac cau hoi cua mon cu se bi xoa cung mon.
-    xoaDanhSachCauHoi(root->dsCHT);
-
-    // Chuyen payload cua successor sang node hien tai.
-    root->maMH = succ->maMH;
-    root->tenMH = succ->tenMH;
-    root->dsCHT = succ->dsCHT;
-    succ->dsCHT = nullptr;
-
-    // Tach successor khoi cay (successor khong co con trai).
-    *ppSucc = succ->right;
-    delete succ;
+    xoaDanhSachCauHoi(p->dsCHT);
+    delete p;
     return true;
 }
 
-void inDanhSachMonHoc(MonHoc* root) {
+void inDanhSachMonHoc(MonHoc* dsMon) {
     std::cout << std::left
               << std::setw(5) << "STT"
               << std::setw(18) << "MA MON"
               << std::setw(35) << "TEN MON"
               << std::setw(10) << "SO CAU" << '\n';
     std::cout << std::string(68, '-') << '\n';
+
     int stt = 1;
-    inMonHocInorder(root, stt);
-    if (stt == 1) std::cout << "Danh sach mon hoc rong.\n";
+    for (MonHoc* p = dsMon; p != nullptr; p = p->next) {
+        std::cout << std::left
+                  << std::setw(5) << stt++
+                  << std::setw(18) << p->maMH
+                  << std::setw(35) << p->tenMH
+                  << std::setw(10) << demCauHoi(p) << '\n';
+    }
+    if (dsMon == nullptr) std::cout << "Danh sach mon hoc rong.\n";
 }
 
-void giaiPhongCayMonHoc(MonHoc*& root) {
-    if (!root) return;
-    giaiPhongCayMonHoc(root->left);
-    giaiPhongCayMonHoc(root->right);
-    xoaDanhSachCauHoi(root->dsCHT);
-    delete root;
-    root = nullptr;
+void giaiPhongDanhSachMonHoc(MonHoc*& dsMon) {
+    while (dsMon != nullptr) {
+        MonHoc* p = dsMon;
+        dsMon = dsMon->next;
+        xoaDanhSachCauHoi(p->dsCHT);
+        delete p;
+    }
+}
+
+// Giu ten cu de cac cho goi truoc day van bien dich; khong dung cay.
+void giaiPhongCayMonHoc(MonHoc*& dsMon) {
+    giaiPhongDanhSachMonHoc(dsMon);
 }
 
 int demCauHoi(const MonHoc* mh) {
