@@ -3,10 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-
 namespace {
-
-// Khong nhan chuoi rong, chi co khoang trang, hoac ky tu tach file.
 bool hopLeChuoi(const std::string& s) {
     bool coNoiDung = false;
     for (std::size_t i = 0; i < s.size(); i++) {
@@ -16,7 +13,6 @@ bool hopLeChuoi(const std::string& s) {
     }
     return coNoiDung;
 }
-
 bool hopLeCauHoi(const std::string& noiDung,
                 const std::string& A, const std::string& B,
                 const std::string& C, const std::string& D,
@@ -24,8 +20,6 @@ bool hopLeCauHoi(const std::string& noiDung,
     return hopLeChuoi(noiDung) && hopLeChuoi(A) && hopLeChuoi(B) &&
            hopLeChuoi(C) && hopLeChuoi(D) && kiemTraDapAn(dapAn);
 }
-
-
 void xoaDanhSachCauHoi(CauHoi*& head) {
     while (head) {
         CauHoi* p = head;
@@ -33,9 +27,7 @@ void xoaDanhSachCauHoi(CauHoi*& head) {
         delete p;
     }
 }
-
-} // namespace
-
+} 
 MonHoc* timMonHoc(MonHoc* dsMon, const std::string& maMH) {
     MonHoc* p = dsMon;
     while (p != nullptr) {
@@ -44,7 +36,6 @@ MonHoc* timMonHoc(MonHoc* dsMon, const std::string& maMH) {
     }
     return nullptr;
 }
-
 bool themMonHoc(MonHoc*& dsMon, const std::string& maMH,
                 const std::string& tenMH) {
     if (!hopLeChuoi(maMH) || maMH.size() > 15 || !hopLeChuoi(tenMH)) {
