@@ -102,3 +102,14 @@ int loadDiem(Lop* dsLop[], int n, const std::string& path){
     f.close();
     return soLuong;
 }
+bool updateScore( SinhVien* sv,const std::string& maMH,double diem){
+    if(!(diem >= 0 && diem <= 10)){
+        return false;
+    }
+    Diem* p = findScore(sv, maMH);
+    if(p == nullptr){
+        return false;
+    }
+    p->diem = diem;
+    return true;
+}
