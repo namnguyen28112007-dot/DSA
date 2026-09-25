@@ -52,6 +52,7 @@ struct BaiThi {
     std::string maMH;
     double diem = 0.0;
     int soCau = 0;
+    int soCauDung = 0;
     ChiTietThi* dsChiTiet = nullptr;
 
     // Khoi phuc bai thi dang do.
