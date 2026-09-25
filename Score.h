@@ -19,3 +19,8 @@ void printClassScore(Lop* lop, const std::string& maMH);
 // Luu / doc diem cua toan bo sinh vien trong dsLop.
 void saveDiem(Lop* dsLop[], int n, const std::string& path);
 int loadDiem(Lop* dsLop[], int n, const std::string& path);
+bool updateScore(
+    SinhVien* sv,
+    const std::string& maMH,
+    double diem
+);
