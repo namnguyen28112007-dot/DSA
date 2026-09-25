@@ -6,7 +6,4 @@ int layCauHoiVaoMang(
     CauHoi* ds[],
     int maxSize
 );
-void tronCauHoi(
-    CauHoi* ds[],
-    int n
-);
+void tronCauHoi(CauHoi* ds[], int n);
