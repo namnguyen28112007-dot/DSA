@@ -1,4 +1,7 @@
 #pragma once
-#include "models.h"
-bool kiemTraDapAn (char dapAn);
+
+char chuanHoaDapAn(char dapAn);
+
+bool kiemTraDapAn(char dapAn);
+
 double tinhDiem(int soCauDung, int tongSoCau);
