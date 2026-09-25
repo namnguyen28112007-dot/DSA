@@ -1,8 +1,7 @@
 #include "ExamHistory.h"
-ChiTietThi* taoChiTietThi(
-    CauHoi* cauHoi,
-    char dapAnSV
-){
+#include "ExamValidation.h"
+#include "Score.h"
+ChiTietThi* taoChiTietThi(CauHoi* cauHoi,char dapAnSV){
     if(cauHoi==nullptr){
     return nullptr;
 }
@@ -34,10 +33,10 @@ void themChiTietThi(
     }
     p->next=moi;
 }
-BaiThi*taoBaiThi(
-    const std::string&maMH,
-    int soCau
-){
+BaiThi*taoBaiThi( const std::string&maMH, int soCau){
+    if(maMH.empty() || soCau <= 0){
+        return nullptr;
+    }
     BaiThi*baiThi=new BaiThi;
     baiThi->maMH=maMH;
     baiThi->soCau=soCau;
@@ -45,22 +44,19 @@ BaiThi*taoBaiThi(
     baiThi->soCauDung=0;
     baiThi->dsChiTiet=nullptr;
     baiThi->trangThai=BAI_DANG_THI;
+    baiThi->thoiGianConLai = 30 * 60;
     baiThi->phienDangMo=true;
+    baiThi->next = nullptr;
     return baiThi;
 }
-void themBaiThiVaoLichSu(
-    SinhVien* sv,
-    BaiThi* baiThi
-){
+void themBaiThiVaoLichSu( SinhVien* sv, BaiThi* baiThi){
     if(sv==nullptr||baiThi==nullptr){
         return;
     }
     baiThi->next = sv->lichSuThi;
     sv->lichSuThi = baiThi;
 }
-BaiThi* timBaiThi(
-    SinhVien* sv,
-    const std::string&maMH
+BaiThi* timBaiThi( SinhVien* sv, const std::string&maMH
 ){
     if(sv==nullptr){
         return nullptr;
@@ -73,6 +69,35 @@ BaiThi* timBaiThi(
         p=p->next;
     }
     return nullptr;
+}
+void chamBaiThi(SinhVien* sv, BaiThi* baiThi){
+    if(sv == nullptr || baiThi == nullptr){
+        return;
+    }
+    int soDung = 0;
+    ChiTietThi* p = baiThi->dsChiTiet;
+    while(p != nullptr){
+        if(p->dapAnSV != 'X' &&
+           p->dapAnSV == p->dapAnDung){
+            soDung++;
+        }
+        p = p->next;
+    }
+    baiThi->soCauDung = soDung;
+    if(baiThi->trangThai == BAI_VI_PHAM){
+        baiThi->diem = 0.0;
+    } else {
+        baiThi->diem =
+            tinhDiem(soDung, baiThi->soCau);
+        baiThi->trangThai = BAI_HOAN_THANH;
+    }
+    baiThi->phienDangMo = false;
+    Diem* diemCu = findScore(sv, baiThi->maMH);
+    if(diemCu == nullptr){
+        addScore(sv, baiThi->maMH, baiThi->diem);
+    } else {
+        updateScore(sv, baiThi->maMH, baiThi->diem);
+    }
 }
 #include <iostream>
 #include "models.h"
@@ -101,20 +126,16 @@ int main() {
     c2.D = "Graph";
     c2.dapAn = 'A';
 
-
     // 2. Tao bai thi
     BaiThi* bt = taoBaiThi("CTDL", 2);
-
-
+    
     // 3. Tao snapshot cau hoi
     ChiTietThi* ct1 = taoChiTietThi(&c1, 'B');
     ChiTietThi* ct2 = taoChiTietThi(&c2, 'C');
 
-
     // 4. Them 2 cau vao bai thi
     themChiTietThi(bt, ct1);
     themChiTietThi(bt, ct2);
-
 
     // Gia su sinh vien dung 1/2 cau
     bt->soCauDung = 1;
@@ -122,17 +143,14 @@ int main() {
     bt->trangThai = BAI_HOAN_THANH;
     bt->phienDangMo = false;
 
-
     // 5. Tao sinh vien
     SinhVien sv;
     sv.maSV = "SV001";
     sv.ho = "Nguyen";
     sv.ten = "Nam";
 
-
     // 6. Them bai thi vao lich su
     themBaiThiVaoLichSu(&sv, bt);
-
 
     // 7. In thong tin bai thi
     cout << "Ma mon: " << bt->maMH << endl;
@@ -140,12 +158,9 @@ int main() {
     cout << "So cau dung: " << bt->soCauDung << endl;
     cout << "Diem: " << bt->diem << endl;
 
-
     // 8. Duyet danh sach ChiTietThi
     cout << "\nChi tiet bai thi:\n";
-
     ChiTietThi* p = bt->dsChiTiet;
-
     while (p != nullptr) {
         cout << "Cau " << p->questionId << endl;
         cout << p->noiDung << endl;
@@ -155,7 +170,6 @@ int main() {
 
         p = p->next;
     }
-
 
     // 9. Test timBaiThi
     BaiThi* tim = timBaiThi(&sv, "CTDL");
