@@ -3,16 +3,13 @@
 #include "models.h"
 #include <string>
 
-// Mon hoc dung BST, cau hoi dung danh sach lien ket trong models.h.
-// Giu nguyen ten ham de dung voi bai lam hien tai.
-MonHoc* timMonHoc(MonHoc* root, const std::string& maMH);
-bool themMonHoc(MonHoc*& root, const std::string& maMH, const std::string& tenMH);
-bool suaMonHoc(MonHoc* root, const std::string& maMH, const std::string& tenMoi);
-// Ham nay chi xoa trong cay. Noi goi phai chan xoa mon da co bai thi/diem.
-bool xoaMonHoc(MonHoc*& root, const std::string& maMH);
-void inDanhSachMonHoc(MonHoc* root);
-void giaiPhongCayMonHoc(MonHoc*& root);
-
+MonHoc* timMonHoc(MonHoc* dsMon, const std::string& maMH);// Giu nguyen ten ham de dung voi bai lam hien tai.
+bool themMonHoc(MonHoc*& dsMon, const std::string& maMH, const std::string& tenMH);
+bool suaMonHoc(MonHoc* dsMon, const std::string& maMH, const std::string& tenMoi);
+bool xoaMonHoc(MonHoc*& dsMon, const std::string& maMH);// chi xoa trong danh sach. Noi goi phai chan xoa mon da co bai thi/diem.
+void inDanhSachMonHoc(MonHoc* dsMon);
+void giaiPhongDanhSachMonHoc(MonHoc*& dsMon);
+void giaiPhongCayMonHoc(MonHoc*& dsMon);
 int demCauHoi(const MonHoc* mh);
 // nextQuestionId dung chung cho TOAN BO mon, chi tang khi them thanh cong.
 // Khi doc du lieu, dat nextQuestionId lon hon ID lon nhat da doc.
