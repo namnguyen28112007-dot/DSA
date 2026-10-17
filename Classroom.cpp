@@ -1,6 +1,4 @@
 #include "Classroom.h"
-#include <fstream>
-#include <sstream>
 #include <iostream>
 
 Lop* findLop(Lop* dsLop[], int n, const std::string& maLop){
